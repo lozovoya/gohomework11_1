@@ -1,9 +1,9 @@
 package main
 
 import (
-	"debug/elf"
 	"github.com/lozovoya/gohomework11_1/cmd/bank/app"
 	"github.com/lozovoya/gohomework11_1/pkg/card"
+	"log"
 	"net"
 	"net/http"
 	"os"
@@ -23,7 +23,11 @@ func main() {
 		host = defaultHost
 	}
 
+	log.Println(host)
+	log.Println(port)
+
 	if err := execute(net.JoinHostPort(host, port)); err != nil {
+		log.Println(err)
 		os.Exit(1)
 	}
 }
