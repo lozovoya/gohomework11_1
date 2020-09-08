@@ -37,12 +37,12 @@ func execute(addr string) (err error) {
 	mux := http.NewServeMux()
 	application := app.NewServer(cardSvc, mux)
 
-	//cardSvc.AddHolder("Ivan Ivanov")
-	//cardSvc.AddHolder("Vasily Petrov")
-	//cardSvc.AddHolder("Petr Sidorov")
-	//cardSvc.AddCard("visa", 0, "plastic")
-	//cardSvc.AddCard("visa", 1, "plastic")
-	//cardSvc.AddCard("visa", 2, "plastic")
+	cardSvc.AddHolder("Ivan Ivanov")
+	cardSvc.AddHolder("Vasily Petrov")
+	cardSvc.AddHolder("Petr Sidorov")
+	cardSvc.AddCard("visa", 0, "plastic")
+	cardSvc.AddCard("visa", 1, "plastic")
+	cardSvc.AddCard("visa", 2, "plastic")
 
 	application.Init()
 	server := &http.Server{
