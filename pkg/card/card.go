@@ -1,6 +1,7 @@
 package card
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"sync"
@@ -54,7 +55,10 @@ func (s *Service) AllCards() []*Card {
 	return s.cards
 }
 
-func (s *Service) HolderCards(holderid int) []*Card {
+func (s *Service) HolderCards(holderid int) ([]*Card, error) {
+
+	ErrWrongHolder := errors.New("wrong holder id")
+
 	s.mu.RLock()
 	defer s.mu.RLock()
 
@@ -64,29 +68,38 @@ func (s *Service) HolderCards(holderid int) []*Card {
 			cards = append(cards, c)
 		}
 	}
-	return cards
+
+	if len(cards) == 0 {
+		return cards, ErrWrongHolder
+	}
+
+	return cards, nil
 }
 
-func (s *Service) AddHolderCard(issuer string, holder int, image string) {
+func (s *Service) AddHolderCard(issuer string, holder int, image string) (err error) {
+
+	ErrWrongIssuer := errors.New("wrong card issuer")
+	ErrWrongType := errors.New("wrong card type")
+	ErrWrongHolder := errors.New("wrong holder id")
 
 	if (issuer == "visa") || (issuer == "master") {
 		if (image == "plastic") || (image == "virtual") {
-			for _, c := range s.cards {
-				if holder == c.HolderId {
+			for _, h := range s.holders {
+				if holder == h.Id {
 					s.AddCard(issuer, holder, image)
-					break
+					log.Println("card is added")
+					return
 				}
 			}
 		} else {
 			log.Println("wrong card type")
-			return
+			return ErrWrongType
 		}
 
 	} else {
-		log.Println("wrong card type")
-		return
+		log.Println("wrong card issuer")
+		return ErrWrongIssuer
 	}
 
-	log.Println("card is added")
-	return
+	return ErrWrongHolder
 }

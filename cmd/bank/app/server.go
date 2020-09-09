@@ -33,32 +33,18 @@ func (s *Server) getAllCards(w http.ResponseWriter, r *http.Request) {
 	cards := s.cardSvc.AllCards()
 	if len(cards) == 0 {
 		log.Println("no cards available")
-		return
-	}
-	dtos := make([]*dto.CardDTO, len(cards))
-	for i, c := range cards {
-		dtos[i] = &dto.CardDTO{
-			Id:       c.Id,
-			Number:   c.Number,
-			Issuer:   c.Issuer,
-			HolderId: c.HolderId,
-			Type:     c.Type,
+		err := s.SendReply(w, cards, "no cards available")
+		if err != nil {
+			log.Println(err)
 		}
+		return
 	}
 
-	respBody, err := json.Marshal(dtos)
+	err := s.SendReply(w, cards, "")
 	if err != nil {
 		log.Println(err)
 		return
 	}
-
-	w.Header().Add("Content-Type", "application/json")
-	_, err = w.Write(respBody)
-	if err != nil {
-		log.Println(err)
-		return
-	}
-
 }
 
 func (s *Server) getHolderCards(w http.ResponseWriter, r *http.Request) {
@@ -68,31 +54,13 @@ func (s *Server) getHolderCards(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 		return
 	}
-	cards := s.cardSvc.HolderCards(holderid)
-	if len(cards) == 0 {
-		log.Println("no cards available")
-		return
-	}
-
-	dtos := make([]*dto.CardDTO, len(cards))
-	for i, c := range cards {
-		dtos[i] = &dto.CardDTO{
-			Id:       c.Id,
-			Number:   c.Number,
-			Issuer:   c.Issuer,
-			HolderId: c.HolderId,
-			Type:     c.Type,
-		}
-	}
-
-	respBody, err := json.Marshal(dtos)
+	cards, err := s.cardSvc.HolderCards(holderid)
 	if err != nil {
-		log.Println(err)
+		s.SendReply(w, nil, err.Error())
 		return
 	}
 
-	w.Header().Add("Content-Type", "application/json")
-	_, err = w.Write(respBody)
+	err = s.SendReply(w, cards, "")
 	if err != nil {
 		log.Println(err)
 		return
@@ -118,6 +86,50 @@ func (s *Server) addHolderCard(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	s.cardSvc.AddHolderCard(issuer, holderid, image)
+	err = s.cardSvc.AddHolderCard(issuer, holderid, image)
+	if err != nil {
+		s.SendReply(w, nil, err.Error())
+		return
+	}
+	s.SendReply(w, nil, "Card is added")
 	return
+}
+
+func (s *Server) SendReply(w http.ResponseWriter, cards []*card.Card, message string) (err error) {
+
+	var respBody []byte
+
+	if len(cards) != 0 {
+		dtos := make([]*dto.CardDTO, len(cards))
+		for i, c := range cards {
+			dtos[i] = &dto.CardDTO{
+				Id:       c.Id,
+				Number:   c.Number,
+				Issuer:   c.Issuer,
+				HolderId: c.HolderId,
+				Type:     c.Type,
+			}
+		}
+
+		respBody, err = json.Marshal(dtos)
+		if err != nil {
+			log.Println(err)
+			return err
+		}
+	} else {
+		respBody, err = json.Marshal(message)
+		if err != nil {
+			log.Println(err)
+			return err
+		}
+	}
+
+	w.Header().Add("Content-Type", "application/json")
+	_, err = w.Write(respBody)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+
+	return nil
 }
