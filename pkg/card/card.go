@@ -26,6 +26,12 @@ type Service struct {
 	holders []*Holder
 }
 
+var (
+	ErrWrongIssuer = errors.New("wrong card issuer")
+	ErrWrongType   = errors.New("wrong card type")
+	ErrWrongHolder = errors.New("wrong holder id")
+)
+
 func NewService() *Service { return &Service{} }
 
 func (s *Service) AddHolder(name string) {
@@ -57,8 +63,6 @@ func (s *Service) AllCards() []*Card {
 
 func (s *Service) HolderCards(holderid int) ([]*Card, error) {
 
-	ErrWrongHolder := errors.New("wrong holder id")
-
 	s.mu.RLock()
 	defer s.mu.RLock()
 
@@ -77,10 +81,6 @@ func (s *Service) HolderCards(holderid int) ([]*Card, error) {
 }
 
 func (s *Service) AddHolderCard(issuer string, holder int, image string) (err error) {
-
-	ErrWrongIssuer := errors.New("wrong card issuer")
-	ErrWrongType := errors.New("wrong card type")
-	ErrWrongHolder := errors.New("wrong holder id")
 
 	if (issuer == "visa") || (issuer == "master") {
 		if (image == "plastic") || (image == "virtual") {

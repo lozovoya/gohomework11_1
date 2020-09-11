@@ -19,14 +19,9 @@ func NewServer(cardSvc *card.Service, mux *http.ServeMux) *Server {
 }
 
 func (s *Server) Init() {
-	s.mux.HandleFunc("/addCard", s.addCard)
 	s.mux.HandleFunc("/getAllCards", s.getAllCards)
 	s.mux.HandleFunc("/getHolderCards", s.getHolderCards)
 	s.mux.HandleFunc("/addHolderCard", s.addHolderCard)
-}
-
-func (s *Server) addCard(w http.ResponseWriter, r *http.Request) {
-	log.Println("implement me")
 }
 
 func (s *Server) getAllCards(w http.ResponseWriter, r *http.Request) {
@@ -76,15 +71,7 @@ func (s *Server) addHolderCard(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	issuer := r.FormValue("issuer")
-	if err != nil {
-		log.Println(err)
-		return
-	}
 	image := r.FormValue("image")
-	if err != nil {
-		log.Println(err)
-		return
-	}
 
 	err = s.cardSvc.AddHolderCard(issuer, holderid, image)
 	if err != nil {
@@ -117,7 +104,10 @@ func (s *Server) SendReply(w http.ResponseWriter, cards []*card.Card, message st
 			return err
 		}
 	} else {
-		respBody, err = json.Marshal(message)
+		var dtos = &dto.MessageDTO{
+			Message: message,
+		}
+		respBody, err = json.Marshal(dtos)
 		if err != nil {
 			log.Println(err)
 			return err

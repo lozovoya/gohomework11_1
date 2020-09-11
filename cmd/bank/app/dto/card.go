@@ -8,4 +8,6 @@ type CardDTO struct {
 	Type     string `json:"type"`
 }
 
-type MessageDTO string
+type MessageDTO struct {
+	Message string `json:"message"`
+}
