@@ -85,35 +85,6 @@ func (s *Server) addHolderCard(w http.ResponseWriter, r *http.Request) {
 func (s *Server) SendReply(w http.ResponseWriter, cards []*card.Card, message string) (err error) {
 
 	var respBody []byte
-	//var dtos []*dto.CardDTO
-
-	//if len(cards) != 0 {
-	//	dtos = make([]*dto.CardDTO, len(cards))
-	//	for i, c := range cards {
-	//		dtos[i] = &dto.CardDTO{
-	//			Id:       c.Id,
-	//			Number:   c.Number,
-	//			Issuer:   c.Issuer,
-	//			HolderId: c.HolderId,
-	//			Type:     c.Type,
-	//		}
-	//	}
-	//
-	//	respBody, err = json.Marshal(dtos)
-	//	if err != nil {
-	//		log.Println(err)
-	//		return err
-	//	}
-	//} else {
-	//	dtos = &dto.MessageDTO{
-	//		Message: message,
-	//	}
-	//	respBody, err = json.Marshal(dtos)
-	//	if err != nil {
-	//		log.Println(err)
-	//		return err
-	//	}
-	//}
 	var dtos []dto.CardDTO
 	if len(cards) != 0 {
 		dtos = make([]dto.CardDTO, len(cards))
@@ -124,7 +95,6 @@ func (s *Server) SendReply(w http.ResponseWriter, cards []*card.Card, message st
 				Issuer:   c.Issuer,
 				HolderId: c.HolderId,
 				Type:     c.Type,
-				Message:  "ok",
 			}
 		}
 	} else {
