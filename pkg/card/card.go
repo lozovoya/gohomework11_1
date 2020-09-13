@@ -44,8 +44,11 @@ func (s *Service) AddHolder(name string) {
 }
 
 func (s *Service) AddCard(issuer string, holder int, image string) {
-	var card Card
 
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	var card Card
 	card.Id = len(s.cards)
 	card.Number = fmt.Sprintf("000%d", len(s.cards))
 	card.Issuer = issuer
@@ -82,23 +85,21 @@ func (s *Service) HolderCards(holderid int) ([]*Card, error) {
 
 func (s *Service) AddHolderCard(issuer string, holder int, image string) (err error) {
 
-	if (issuer == "visa") || (issuer == "master") {
-		if (image == "plastic") || (image == "virtual") {
-			for _, h := range s.holders {
-				if holder == h.Id {
-					s.AddCard(issuer, holder, image)
-					log.Println("card is added")
-					return
-				}
-			}
-		} else {
-			log.Println("wrong card type")
-			return ErrWrongType
-		}
-
-	} else {
+	if issuer != "visa" && issuer != "master" {
 		log.Println("wrong card issuer")
 		return ErrWrongIssuer
+	}
+	if image != "plastic" && image != "virtual" {
+		log.Println("wrong card type")
+		return ErrWrongType
+	}
+
+	for _, h := range s.holders {
+		if holder == h.Id {
+			s.AddCard(issuer, holder, image)
+			log.Println("card is added")
+			return
+		}
 	}
 
 	return ErrWrongHolder

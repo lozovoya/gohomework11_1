@@ -6,6 +6,7 @@ type CardDTO struct {
 	Issuer   string `json:"issuer"`
 	HolderId int    `json:"holder_id"`
 	Type     string `json:"type"`
+	Message  string `json:"message"`
 }
 
 type MessageDTO struct {
